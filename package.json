@@ -1,0 +1,24 @@
+{
+  "name": "chat-room",
+  "version": "0.0.0",
+  "description": "A Chat Room",
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JMTNTBANG/Chat-Room.git"
+  },
+  "author": "JMTNTBANG",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/JMTNTBANG/Chat-Room/issues"
+  },
+  "homepage": "https://github.com/JMTNTBANG/Chat-Room#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mysql": "^2.18.1"
+  }
+}
