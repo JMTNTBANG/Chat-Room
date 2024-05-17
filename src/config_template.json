@@ -1,0 +1,10 @@
+{
+    "server": {
+        "ip": "MYSQL IP ADDRESS",
+        "port": "3306"
+    },
+    "auth": {
+        "username": "MYSQL USERNAME",
+        "password": "MYSQL PASSWORD"
+    }
+}

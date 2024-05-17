@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "name": "Deploy",
+            "request": "launch",
+            "command": "npm run deploy",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
