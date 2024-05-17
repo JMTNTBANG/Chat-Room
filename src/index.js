@@ -39,8 +39,7 @@ website
 
 //  example.com/  \\
 website.get("/", (request, response) => {
-  response.send("Success");
-  response.end();
+  response.sendFile(path.join(__dirname + "/home.html"))
 });
 
 //  Open Up Website Ports 8080 and 443 (if secured)  \\
