@@ -6,5 +6,6 @@
     "auth": {
         "username": "MYSQL USERNAME",
         "password": "MYSQL PASSWORD"
-    }
+    },
+    "ssl": "/etc/letsencrypt/live/[YOUR DOMAIN NAME]"
 }
