@@ -57,7 +57,9 @@ website.get("/chathistory", (request, response) => {
   database.query("SELECT * FROM chat_rooms.messages", (err, messages, x) => {
     if (err) sendPopup(err, response);
     database.query("SELECT * FROM auth.accounts", (err, accounts, x) => {
-      let payload = "";
+      if (err) sendPopup(err, response);
+      let payload =
+        "<style>body {font-family: Arial, sans-serif;background-color: white;}</style>";
       for (message in messages) {
         let author = "debug";
         for (account in accounts) {
@@ -66,9 +68,38 @@ website.get("/chathistory", (request, response) => {
             break;
           } else continue;
         }
-        payload += `<style>body {font-family: Arial, sans-serif;background-color: white;}</style><div><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1></div><br>`;
+        payload += `<div><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1></div><br>`;
       }
-      response.send(payload);
+      response.write(payload);
+      setInterval(() => {
+        database.query(
+          "SELECT * FROM chat_rooms.messages",
+          (err, messages2, x) => {
+            if (err) sendPopup(err, response);
+            database.query(
+              "SELECT * FROM auth.accounts",
+              (err, accounts, x) => {
+                if (err) sendPopup(err, response);
+                let payload = "";
+                for (message in messages2) {
+                  if (!message) continue;
+                  if (messages.includes(messages[message])) continue;
+                  let author = "debug";
+                  for (account in accounts) {
+                    if (accounts[account].ID == messages2[message].userID) {
+                      author = accounts[account].username;
+                      break;
+                    } else continue;
+                  }
+                  payload += `<div><h2>${author}</h2><h3>${messages2[message].dateCreated}</h3><h1>${messages2[message].content}</h1></div><br>`;
+                  messages.push(messages2[message])
+                }
+                response.write(payload);
+              }
+            );
+          }
+        );
+      }, 1000);
     });
   });
 });
