@@ -18,7 +18,7 @@ const database = mysql.createConnection({
   host: config.server.ip,
   port: config.server.port,
   user: config.auth.username,
-  password: config.auth.password,
+  password: config.auth.password
 });
 
 //  Connect to the Database  \\
@@ -37,10 +37,30 @@ website
   .use(express.urlencoded({ extended: true }))
   .use(express.static(path.join(__dirname, "static")));
 
+//  Send Error To Client  \\
+function sendPopup(message, response) {
+    response.send(`<script>alert("${message}")</script>`)
+    response.end()
+    return;
+}
+
 //  example.com/  \\
 website.get("/", (request, response) => {
   response.sendFile(path.join(__dirname + "/home.html"))
 });
+
+//  example.com/chathistory  \\
+website.get("/chathistory", (request, response) => {
+  database.query("SELECT * FROM chat_rooms.messages", (err, result, fields) => {
+    if (err) sendPopup(err, response)
+    let payload = ''
+    for (message in result) {
+        payload += `<div><h2>User: ${result[message].userID}  Time: ${result[message].dateCreated}</h2><h1>${result[message].content}</h1></div><br>`
+    }
+    response.send(payload)
+  })
+})
+
 
 //  Open Up Website Ports 8080 and 443 (if secured)  \\
 try {
