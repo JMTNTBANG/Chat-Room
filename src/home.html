@@ -1,5 +1,11 @@
 <head>
   <title>Chat Room</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: lightgray;
+    }
+  </style>
 </head>
 
 <body>
@@ -9,6 +15,13 @@
       style="height: 95%; width: 100%"
       title="Chat Room"
     ></iframe>
-    <form action="/sendmessage" method="post"><input type="text" style="height: 4%; width: 90%; font-size: large;"><input type="submit" value="Send" style="height: 4%; width: 10%;"></form>
+    <form action="/sendmessage" method="post">
+      <input
+        type="text"
+        name="message"
+        id="message"
+        style="height: 4%; width: 90%; font-size: large"
+      /><input type="submit" value="Send" style="height: 4%; width: 10%" />
+    </form>
   </div>
 </body>

@@ -54,16 +54,38 @@ website.get("/", (request, response) => {
 //  The Chat History Window on the homepage  \\
 //          example.com/chathistory          \\
 website.get("/chathistory", (request, response) => {
-  database.query("SELECT * FROM chat_rooms.messages", (err, result, fields) => {
-    if (err) sendPopup(err, response)
-    let payload = ''
-    for (message in result) {
-        payload += `<div><h2>User: ${result[message].userID}  Time: ${result[message].dateCreated}</h2><h1>${result[message].content}</h1></div><br>`
-    }
-    response.send(payload)
-  })
-})
+  database.query("SELECT * FROM chat_rooms.messages", (err, messages, x) => {
+    if (err) sendPopup(err, response);
+    database.query("SELECT * FROM auth.accounts", (err, accounts, x) => {
+      let payload = "";
+      for (message in messages) {
+        let author = "debug";
+        for (account in accounts) {
+          if (accounts[account].ID == messages[message].userID) {
+            author = accounts[account].username;
+            break;
+          } else continue;
+        }
+        payload += `<style>body {font-family: Arial, sans-serif;background-color: white;}</style><div><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1></div><br>`;
+      }
+      response.send(payload);
+    });
+  });
+});
 
+//  Called When a Message is Sent  \\
+//     example.com/sendmessage     \\
+website.post("/sendmessage", (request, response) => {
+  const message = request.body.message;
+  database.query(
+    `INSERT INTO chat_rooms.messages (\`userID\`, \`room\`, \`content\`) VALUES ('${request.session.userid}', '0', '${message}');`,
+    (err, results) => {
+      if (err) sendPopup(err, response);
+      response.redirect("/");
+      response.end();
+    }
+  );
+});
 
 //  Called During a Login Attempt  \\
 //        example.com/login        \\
