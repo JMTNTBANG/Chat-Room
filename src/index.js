@@ -18,7 +18,7 @@ const database = mysql.createConnection({
   host: config.server.ip,
   port: config.server.port,
   user: config.auth.username,
-  password: config.auth.password
+  password: config.auth.password,
 });
 
 //  Connect to the Database  \\
@@ -39,17 +39,20 @@ website
 
 //  Send Error To Client  \\
 function sendPopup(message, response) {
-    response.send(`<script>alert("${message}")</script>`)
-    response.end()
-    return;
+  response.send(`<script>alert("${message}"); history.back();</script>`);
+  response.end();
+  return;
 }
-
-//  example.com/  \\
+//   Home Page   \\
+//  example.com  \\
 website.get("/", (request, response) => {
-  response.sendFile(path.join(__dirname + "/home.html"))
+  if (request.session.loggedin)
+    response.sendFile(path.join(__dirname + "/home.html"));
+  else response.sendFile(path.join(__dirname + "/login.html"));
 });
 
-//  example.com/chathistory  \\
+//  The Chat History Window on the homepage  \\
+//          example.com/chathistory          \\
 website.get("/chathistory", (request, response) => {
   database.query("SELECT * FROM chat_rooms.messages", (err, result, fields) => {
     if (err) sendPopup(err, response)
@@ -62,6 +65,32 @@ website.get("/chathistory", (request, response) => {
 })
 
 
+//  Called During a Login Attempt  \\
+//        example.com/login        \\
+website.post("/login", (request, response) => {
+  const username = request.body.username;
+  const password = request.body.password;
+  let previous_query = url.parse(request.rawHeaders[33], true).search;
+  if (previous_query == null) {
+    previous_query = "";
+  }
+  if (username && password) {
+    database.query(
+      "SELECT * FROM auth.accounts WHERE username = ? AND password = ?",
+      [username, password],
+      function (err, results, fields) {
+        if (err) sendPopup(err, response);
+        if (results.length > 0) {
+          request.session.loggedin = true;
+          request.session.username = username;
+          request.session.userid = results[0].ID;
+        }
+        response.redirect(`/${previous_query}`);
+        response.end();
+      }
+    );
+  }
+});
 //  Open Up Website Ports 8080 and 443 (if secured)  \\
 try {
   https
