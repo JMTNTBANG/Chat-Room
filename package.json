@@ -1,6 +1,6 @@
 {
   "name": "chat-room",
-  "version": "0.0.1b8",
+  "version": "0.0.1b9",
   "description": "A Chat Room",
   "main": "src/index.js",
   "scripts": {

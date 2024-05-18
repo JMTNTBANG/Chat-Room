@@ -59,7 +59,7 @@ website.get("/chathistory", (request, response) => {
     database.query("SELECT * FROM auth.accounts", (err, accounts, x) => {
       if (err) sendPopup(err, response);
       let payload =
-        "<style>body {font-family: Arial, sans-serif;background-color: white;}</style>";
+        "<style>body {font-family: Arial, sans-serif;background-color: white;} html, body {max-width: 100%;overflow-x: hidden;}</style><div style=\"overflow: auto; display: flex; flex-direction: column-reverse;\">";
       for (message in messages) {
         let author = "debug";
         for (account in accounts) {
@@ -68,7 +68,7 @@ website.get("/chathistory", (request, response) => {
             break;
           } else continue;
         }
-        payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1></div><hr>`;
+        payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1><hr></div>`;
       }
       response.write(payload);
       setInterval(() => {
@@ -91,7 +91,7 @@ website.get("/chathistory", (request, response) => {
                       break;
                     } else continue;
                   }
-                  payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages2[message].dateCreated}</h3><h1>${messages2[message].content}</h1></div><hr>`;
+                  payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages2[message].dateCreated}</h3><h1>${messages2[message].content}</h1><hr></div>`;
                   messages.push(messages2[message])
                 }
                 response.write(payload);
