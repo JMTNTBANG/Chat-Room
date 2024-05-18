@@ -68,7 +68,7 @@ website.get("/chathistory", (request, response) => {
             break;
           } else continue;
         }
-        payload += `<div><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1></div><br>`;
+        payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1></div><hr>`;
       }
       response.write(payload);
       setInterval(() => {
@@ -91,7 +91,7 @@ website.get("/chathistory", (request, response) => {
                       break;
                     } else continue;
                   }
-                  payload += `<div><h2>${author}</h2><h3>${messages2[message].dateCreated}</h3><h1>${messages2[message].content}</h1></div><br>`;
+                  payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages2[message].dateCreated}</h3><h1>${messages2[message].content}</h1></div><hr>`;
                   messages.push(messages2[message])
                 }
                 response.write(payload);
