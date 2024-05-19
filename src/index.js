@@ -148,6 +148,58 @@ website.post("/sendmessage", (request, response) => {
   );
 });
 
+//  The Account Settings Page  \\
+//     example.com/account     \\
+website.get("/account", (request, response) => {
+  if (!request.session.loggedin) {
+    sendPopup(
+      "Session Expired, Please Sign in Again",
+      response,
+      "window.location.pathname = '/';"
+    );
+    return;
+  }
+  response.sendFile(path.join(__dirname + "/account.html"));
+});
+
+//  Called When Updating Account Info  \\
+//   example.com/update-account-info   \\
+website.post("/account/update-account-info", (request, response) => {
+  if (!request.session.loggedin) {
+    sendPopup(
+      "Session Expired, Please Sign in Again",
+      response,
+      "window.location.pathname = '/';"
+    );
+    return;
+  }
+  let queries = "UPDATE auth.accounts SET ";
+  let first = true;
+  if (request.body.username != "") {
+    if (!first) queries += ", ";
+    queries += `\`username\` = '${request.body.username}'`;
+    first = false
+  }
+  if (request.body.password != "") {
+    if (!first) queries += ", ";
+    queries += `\`password\` = '${request.body.password}'`;
+    first = false
+  }
+  queries += ` WHERE (\`ID\` = '${request.session.userid}');`;
+  database.query(queries, (err, result, fields) => {
+    if (err) {
+      sendPopup(err, response);
+      return;
+    }
+    request.session.loggedin = false;
+    sendPopup(
+      `Success, Please Sign Back In`,
+      response,
+      "window.location.pathname = '/';"
+    );
+  });
+});
+
 //  Called During a Login Attempt  \\
 //        example.com/login        \\
 website.post("/login", (request, response) => {
@@ -185,7 +237,7 @@ website.get("/logout", (request, response) => {
     request.session.loggedin = false;
   }
   response.redirect("/");
-})
+});
 
 //  Open Up Website Ports 8080 and 443 (if secured)  \\
 try {
