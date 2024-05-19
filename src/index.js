@@ -38,10 +38,9 @@ website
   .use(express.static(path.join(__dirname, "static")));
 
 //  Send Error To Client  \\
-function sendPopup(message, response) {
-  response.send(`<script>alert("${message}"); history.back();</script>`);
+function sendPopup(message, response, afterAlert = "history.back();") {
+  response.send(`<script>alert("${message}"); ${afterAlert}</script>`);
   response.end();
-  return;
 }
 //   Home Page   \\
 //  example.com  \\
@@ -55,11 +54,17 @@ website.get("/", (request, response) => {
 //          example.com/chathistory          \\
 website.get("/chathistory", (request, response) => {
   database.query("SELECT * FROM chat_rooms.messages", (err, messages, x) => {
-    if (err) sendPopup(err, response);
+    if (err) {
+      sendPopup(err, response);
+      return;
+    }
     database.query("SELECT * FROM auth.accounts", (err, accounts, x) => {
-      if (err) sendPopup(err, response);
+      if (err) {
+        sendPopup(err, response);
+        return;
+      }
       let payload =
-        "<style>body {font-family: Arial, sans-serif;background-color: white;} html, body {max-width: 100%;overflow-x: hidden;}</style><div style=\"overflow: auto; display: flex; flex-direction: column-reverse;\">";
+        '<style>body {font-family: Arial, sans-serif;background-color: white;} html, body {max-width: 100%;overflow-x: hidden;}</style><div style="overflow: auto; display: flex; flex-direction: column-reverse;">';
       for (message in messages) {
         let author = "debug";
         for (account in accounts) {
@@ -72,14 +77,28 @@ website.get("/chathistory", (request, response) => {
       }
       response.write(payload);
       setInterval(() => {
+        if (!request.session.loggedin) {
+          sendPopup(
+            "Session Expired, Please Sign in Again",
+            response,
+            "window.location.pathname = '/';"
+          );
+          return;
+        }
         database.query(
           "SELECT * FROM chat_rooms.messages",
           (err, messages2, x) => {
-            if (err) sendPopup(err, response);
+            if (err) {
+              sendPopup(err, response);
+              return;
+            }
             database.query(
               "SELECT * FROM auth.accounts",
               (err, accounts, x) => {
-                if (err) sendPopup(err, response);
+                if (err) {
+                  sendPopup(err, response);
+                  return;
+                }
                 let payload = "";
                 for (message in messages2) {
                   if (!message) continue;
@@ -92,7 +111,7 @@ website.get("/chathistory", (request, response) => {
                     } else continue;
                   }
                   payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages2[message].dateCreated}</h3><h1>${messages2[message].content}</h1><hr></div>`;
-                  messages.push(messages2[message])
+                  messages.push(messages2[message]);
                 }
                 response.write(payload);
               }
@@ -107,11 +126,22 @@ website.get("/chathistory", (request, response) => {
 //  Called When a Message is Sent  \\
 //     example.com/sendmessage     \\
 website.post("/sendmessage", (request, response) => {
-  const message = request.body.message;
+  let message = request.body.message;
+  if (!request.session.loggedin) {
+    sendPopup(
+      "Session Expired, Please Sign in Again",
+      response,
+      "window.location.pathname = '/';"
+    );
+    return;
+  }
   database.query(
     `INSERT INTO chat_rooms.messages (\`userID\`, \`room\`, \`content\`) VALUES ('${request.session.userid}', '0', '${message}');`,
     (err, results) => {
-      if (err) sendPopup(err, response);
+      if (err) {
+        sendPopup(err, response);
+        return;
+      }
       response.redirect("/");
       response.end();
     }
@@ -132,7 +162,10 @@ website.post("/login", (request, response) => {
       "SELECT * FROM auth.accounts WHERE username = ? AND password = ?",
       [username, password],
       function (err, results, fields) {
-        if (err) sendPopup(err, response);
+        if (err) {
+          sendPopup(err, response);
+          return;
+        }
         if (results.length > 0) {
           request.session.loggedin = true;
           request.session.username = username;
