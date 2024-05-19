@@ -177,6 +177,16 @@ website.post("/login", (request, response) => {
     );
   }
 });
+
+//  Called when the Logout Button is Clicked  \\
+//             example.com/logout             \\
+website.get("/logout", (request, response) => {
+  if (request.session.loggedin) {
+    request.session.loggedin = false;
+  }
+  response.redirect("/");
+})
+
 //  Open Up Website Ports 8080 and 443 (if secured)  \\
 try {
   https
