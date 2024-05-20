@@ -28,7 +28,7 @@
             required
           />
         </center>
-        <br>
+        <br />
         <center>
           <label for="password">Password </label>
           <input
@@ -39,7 +39,12 @@
             required
           />
         </center>
-        <br>
+        <input type="hidden" name="timezone" id="timezone" />
+        <script>
+          document.getElementById("timezone").value =
+            new Date().getTimezoneOffset() * 60 * 100 * -1;
+        </script>
+        <br />
         <center><input type="submit" value="Login" /></center>
       </form>
     </div>

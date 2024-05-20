@@ -73,7 +73,11 @@ website.get("/chathistory", (request, response) => {
             break;
           } else continue;
         }
-        payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${messages[message].dateCreated}</h3><h1>${messages[message].content}</h1><hr></div>`;
+        let date = new Date(messages[message].dateCreated);
+        date = new Date(date.getTime() - request.session.tz)
+        payload += `<div style="width: 100%;"><h2>${author}</h2><h3>${date.toISOString().split("T").join(" ").split(".")[0]}</h3><h1>${
+          messages[message].content
+        }</h1><hr></div>`;
       }
       response.write(payload);
       setInterval(() => {
@@ -178,12 +182,12 @@ website.post("/account/update-account-info", (request, response) => {
   if (request.body.username != "") {
     if (!first) queries += ", ";
     queries += `\`username\` = '${request.body.username}'`;
-    first = false
+    first = false;
   }
   if (request.body.password != "") {
     if (!first) queries += ", ";
     queries += `\`password\` = '${request.body.password}'`;
-    first = false
+    first = false;
   }
   queries += ` WHERE (\`ID\` = '${request.session.userid}');`;
   database.query(queries, (err, result, fields) => {
@@ -222,6 +226,7 @@ website.post("/login", (request, response) => {
           request.session.loggedin = true;
           request.session.username = username;
           request.session.userid = results[0].ID;
+          request.session.tz = request.body.timezone;
         }
         response.redirect(`/${previous_query}`);
         response.end();
